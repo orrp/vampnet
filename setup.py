@@ -39,5 +39,6 @@ setup(
         "pydantic==2.10.6",
         "spaces",
         "python-osc", # For unloop
+        "boto3",  # For S3 support, whamish
     ],
 )

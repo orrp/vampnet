@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """
-VampNet Launcher: orchestrates a single SSH session (with port-forwarding
-and real-time remote stdout/stderr), local client startup, and Max patch loading.
-Supports a --hold mode to delay cleanup until this script is killed, even after Max exits.
+VampNet Launcher: orchestrates EC2 instance management, a single SSH session
+(with port-forwarding and real-time remote stdout/stderr), local client startup,
+and Max patch loading. Supports a --hold mode to delay cleanup until this script
+is killed, even after Max exits.
 """
 import argparse
 import json
@@ -11,7 +12,9 @@ import signal
 import subprocess
 import sys
 import threading
+import time
 from pathlib import Path
+import boto3
 
 
 def setup_logger():
@@ -31,6 +34,13 @@ class VampNetLauncher:
         self.client_proc = None
         self.max_proc = None
         self.hold = hold
+        self.ec2_instance_id = self.config.get('ec2_instance_id')
+        self.ec2_region = self.config.get('ec2_region', 'us-east-1')
+        self.ec2_client = None
+        self.ec2_started = False
+
+        if self.ec2_instance_id:
+            self.ec2_client = boto3.client('ec2', region_name=self.ec2_region)
 
         for sig in (signal.SIGINT, signal.SIGTERM):
             signal.signal(sig, lambda s, f: self._handle_exit())
@@ -44,7 +54,8 @@ class VampNetLauncher:
         missing = [k for k in required if k not in cfg]
         if missing:
             raise KeyError(f"Missing config keys: {', '.join(missing)}")
-        if cfg['server'] == "user@your-server" or cfg['python_path_server'] == "/path/to/python" or cfg['vampnet_dir_server'] == "/path/to/vampnet":
+        if cfg['server'] == "user@your-server" or cfg['python_path_server'] == "/path/to/python" or cfg[
+            'vampnet_dir_server'] == "/path/to/vampnet":
             raise ValueError("First update host, remote_python and _remote_dir in launch_config.json.")
         return cfg
 
@@ -56,27 +67,121 @@ class VampNetLauncher:
         finally:
             pipe.close()
 
+    def _get_instance_state(self):
+        """Get the current state of the EC2 instance."""
+        response = self.ec2_client.describe_instances(InstanceIds=[self.ec2_instance_id])
+        instances = response['Reservations'][0]['Instances']
+        if instances:
+            return instances[0]['State']['Name']
+        return None
+
+    def _wait_for_instance_state(self, target_state, timeout=300):
+        """Wait for instance to reach target state."""
+        start_time = time.time()
+        while time.time() - start_time < timeout:
+            state = self._get_instance_state()
+            if state == target_state:
+                return True
+            self.logger.info(f"Instance state: {state}, waiting for {target_state}...")
+            time.sleep(5)
+        return False
+
+    def _start_ec2_instance(self):
+        """Start the EC2 instance if instance_id is configured."""
+        if not self.ec2_instance_id:
+            self.logger.info("No EC2 instance ID configured, skipping EC2 start")
+            return
+
+        self.logger.info(f"Starting EC2 instance: {self.ec2_instance_id} in region {self.ec2_region}")
+        current_state = self._get_instance_state()
+        self.logger.info(f"Current instance state: {current_state}")
+
+        if current_state == "running":
+            self.logger.info("Instance is already running")
+            self.ec2_started = False  # We didn't start it, so don't stop it
+            return
+        elif current_state in ["stopping", "pending"]:
+            self.logger.info(f"Instance is {current_state}, waiting for stable state...")
+            # Wait for the instance to finish transitioning
+            if current_state == "stopping":
+                self._wait_for_instance_state("stopped", timeout=120)
+            elif current_state == "pending":
+                self._wait_for_instance_state("running", timeout=120)
+                if self._get_instance_state() == "running":
+                    self.ec2_started = False
+                    return
+            current_state = self._get_instance_state()
+
+        # Start the instance if it's stopped
+        if current_state == "stopped":
+            self.ec2_client.start_instances(InstanceIds=[self.ec2_instance_id])
+            self.ec2_started = True
+            self.logger.info("EC2 start command issued, waiting for instance to be ready...")
+
+            # Wait for instance to be running
+            waiter = self.ec2_client.get_waiter('instance_running')
+            waiter.wait(InstanceIds=[self.ec2_instance_id])
+            self.logger.info("EC2 instance is now running")
+
+            # Get the public IP/DNS if the server config uses a placeholder
+            if self.config['server'].endswith('@ec2-instance'):
+                response = self.ec2_client.describe_instances(InstanceIds=[self.ec2_instance_id])
+                instance = response['Reservations'][0]['Instances'][0]
+                public_ip = instance.get('PublicIpAddress') or instance.get('PublicDnsName')
+                if public_ip:
+                    user = self.config['server'].split('@')[0]
+                    self.config['server'] = f"{user}@{public_ip}"
+                    self.logger.info(f"Updated server address to: {self.config['server']}")
+
+            # Additional wait for SSH to be ready
+            self.logger.info("Waiting for SSH service to be ready...")
+            time.sleep(30)  # Adjust based on your instance boot time
+
+    def _stop_ec2_instance(self):
+        """Stop the EC2 instance if we started it."""
+        if not self.ec2_instance_id or not self.ec2_started:
+            if not self.ec2_instance_id:
+                self.logger.info("No EC2 instance ID configured, skipping EC2 stop")
+            else:
+                self.logger.info("EC2 instance was already running, not stopping it")
+            return
+
+        self.logger.info(f"Stopping EC2 instance: {self.ec2_instance_id}")
+        self.ec2_client.stop_instances(InstanceIds=[self.ec2_instance_id])
+        self.logger.info("EC2 stop command issued")
+
     def _run_remote(self):
         # test SSH connection before anything else
         self.logger.info(f"Testing SSH connection to {self.config['server']}...")
-        try:
-            subprocess.check_call([
-                "ssh", "-q",
-                "-o", "ConnectTimeout=5",
-                "-o", "BatchMode=yes",
-                self.config['server'], "true"
-            ])
-        except subprocess.CalledProcessError as e:
-            raise RuntimeError(f"SSH connection to {self.config['server']} failed. "
-                               f"Try running `ssh {self.config['server']}` and check for issues.")
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                subprocess.check_call([
+                    "ssh", "-q",
+                    "-o", "ConnectTimeout=10",
+                    "-o", "BatchMode=yes",
+                    "-o", "StrictHostKeyChecking=no",  # For dynamic IPs
+                    self.config['server'], "true"
+                ])
+                break
+            except subprocess.CalledProcessError:
+                if attempt < max_retries - 1:
+                    self.logger.warning(f"SSH connection attempt {attempt + 1} failed, retrying...")
+                    time.sleep(10)
+                else:
+                    raise RuntimeError(
+                        f"SSH connection to {self.config['server']} failed after {max_retries} attempts. "
+                        f"Try running `ssh {self.config['server']}` and check for issues.")
+
         self.logger.info(f"SSH connection to {self.config['server']} is OK")
         port = int(self.config['port'])
         remote_dir = self.config['vampnet_dir_server']
-        remote_py  = self.config['python_path_server']
+        remote_py = self.config['python_path_server']
         cmd = [
             "ssh",
-            "-tt", # Force pseudo-terminal allocation, so that app.py is killed once the ssh session ends
+            "-tt",  # Force pseudo-terminal allocation, so that app.py is killed once the ssh session ends
             "-o", "ExitOnForwardFailure=yes",
+            "-o", "StrictHostKeyChecking=no",
             "-L", f"{port}:localhost:{port}",
             self.config['server'],
             f"bash -lc \"cd {remote_dir} && exec {remote_py} -u app.py "
@@ -141,13 +246,16 @@ class VampNetLauncher:
                 self.logger.warning("Max did not exit; killing")
                 self.max_proc.kill()
 
+        # Stop EC2 instance
+        self._stop_ec2_instance()
+
     def _handle_exit(self):
         self._teardown()
         sys.exit(0)
 
     def run(self):
-        root   = Path(__file__).resolve().parent.parent
-        patch  = root / self.config['maxpat']
+        root = Path(__file__).resolve().parent.parent
+        patch = root / self.config['maxpat']
         client = root / 'unloop' / 'client.py'
 
         # Preflight checks
@@ -160,6 +268,9 @@ class VampNetLauncher:
             raise FileNotFoundError("Required files missing, aborting launch.")
 
         try:
+            # 0) Start EC2 instance if configured
+            self._start_ec2_instance()
+
             # 1) SSH + remote app + port-forward + log streaming
             self._run_remote()
 
@@ -220,7 +331,7 @@ class VampNetLauncher:
 def main():
     parser = argparse.ArgumentParser(description="Launch VampNet with JSON config.")
     parser.add_argument(
-        '--config',    required=True,      help='Path to JSON config'
+        '--config', required=True, help='Path to JSON config'
     )
     parser.add_argument(
         '--hold', action='store_true',
