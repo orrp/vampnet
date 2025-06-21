@@ -183,7 +183,7 @@ class VampNetLauncher:
             "-o", "StrictHostKeyChecking=no",
             "-L", f"{port}:localhost:{port}",
             self.config['server'],
-            f"bash -lc \"cd {remote_dir} && exec {remote_py} -u app.py "
+            f"bash -lc \"cd {remote_dir} || exit 1; exec {remote_py} -u app.py "
             f"--args.load conf/wham.yml --Interface.device cuda\""
         ]
         self.logger.info(f"SSH+remote cmd: {' '.join(cmd)}")
@@ -197,19 +197,27 @@ class VampNetLauncher:
             daemon=True
         ).start()
 
-        # Read stdout until readiness marker appears
+        # Read stdout until readiness marker appears.
+        # The logic is that the loop will block until the remote app is ready, or break early (with ready=False)
+        # if the remote app fails to start correctly.
         ready_marker = "Running on local URL"
+        ready = False
         for raw in self.ssh_proc.stdout:
             line = raw.decode().rstrip()
-            self.logger.info(f"[Remote] {line}")
+            self.logger.info(f"[Remote][OUT] {line}")
             if ready_marker in line:
-                self.logger.info("✔ Remote service is ready")
+                ready = True
                 break
+        if not ready:
+            raise RuntimeError(
+                f"Remote app did not start correctly."
+            )
+        self.logger.info("Remote app is ready, port-forwarding established.")
 
         # Drain remaining stdout asynchronously
         threading.Thread(
             target=self._stream_pipe,
-            args=(self.ssh_proc.stdout, "[Remote]", self.logger.info),
+            args=(self.ssh_proc.stdout, "[Remote][OUT]", self.logger.info),
             daemon=True
         ).start()
 
