@@ -16,6 +16,8 @@ import time
 from pathlib import Path
 import boto3
 
+READY_MARKER = "Running on local URL"
+
 
 def setup_logger():
     logging.basicConfig(
@@ -200,12 +202,11 @@ class VampNetLauncher:
         # Read stdout until readiness marker appears.
         # The logic is that the loop will block until the remote app is ready, or break early (with ready=False)
         # if the remote app fails to start correctly.
-        ready_marker = "Running on local URL"
         ready = False
         for raw in self.ssh_proc.stdout:
             line = raw.decode().rstrip()
             self.logger.info(f"[Remote][OUT] {line}")
-            if ready_marker in line:
+            if READY_MARKER in line:
                 ready = True
                 break
         if not ready:
