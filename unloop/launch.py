@@ -144,7 +144,7 @@ class VampNetLauncher:
             if not self.config['ec2_instance_id']:
                 self.logger.info("No EC2 instance ID configured, skipping EC2 stop")
             else:
-                self.logger.info("EC2 instance was already running, not stopping it")
+                self.logger.info("EC2 instance wasn't stopped when I started, so I'm not stopping it now.")
             return
 
         self.logger.info(f"Stopping EC2 instance: {self.config['ec2_instance_id']}")
