@@ -34,19 +34,12 @@ class VampNetLauncher:
         self.client_proc = None
         self.max_proc = None
         self.hold = hold
-        self.ec2_instance_id = self.config.get('ec2_instance_id')
-        self.ec2_region = self.config.get('ec2_region', 'us-east-1')
-        self.ec2_client = None
         self.ec2_started = False
-
-        if self.ec2_instance_id:
-            self.ec2_client = boto3.client('ec2', region_name=self.ec2_region)
 
         for sig in (signal.SIGINT, signal.SIGTERM):
             signal.signal(sig, lambda s, f: self._handle_exit())
 
-    @staticmethod
-    def _load_config(path: Path) -> dict:
+    def _load_config(self, path: Path) -> dict:
         if not path.exists():
             raise FileNotFoundError(f"Config file not found: {path}")
         cfg = json.loads(path.read_text())
@@ -56,7 +49,12 @@ class VampNetLauncher:
             raise KeyError(f"Missing config keys: {', '.join(missing)}")
         if cfg['server'] == "user@your-server" or cfg['python_path_server'] == "/path/to/python" or cfg[
             'vampnet_dir_server'] == "/path/to/vampnet":
-            raise ValueError("First update host, remote_python and _remote_dir in launch_config.json.")
+            raise ValueError(f"First update {required} in launch_config.json.")
+
+        # Add EC2 configuration
+        cfg['ec2_instance_id'] = cfg.get('ec2_instance_id')
+        cfg['ec2_region'] = cfg.get('ec2_region')
+        cfg['ec2_client'] = boto3.client('ec2', region_name=cfg['ec2_region']) if cfg['ec2_instance_id'] else None
         return cfg
 
     @staticmethod
@@ -69,7 +67,7 @@ class VampNetLauncher:
 
     def _get_instance_state(self):
         """Get the current state of the EC2 instance."""
-        response = self.ec2_client.describe_instances(InstanceIds=[self.ec2_instance_id])
+        response = self.config['ec2_client'].describe_instances(InstanceIds=[self.config['ec2_instance_id']])
         instances = response['Reservations'][0]['Instances']
         if instances:
             return instances[0]['State']['Name']
@@ -88,11 +86,12 @@ class VampNetLauncher:
 
     def _start_ec2_instance(self):
         """Start the EC2 instance if instance_id is configured."""
-        if not self.ec2_instance_id:
+        if not self.config['ec2_instance_id']:
             self.logger.info("No EC2 instance ID configured, skipping EC2 start")
             return
 
-        self.logger.info(f"Starting EC2 instance: {self.ec2_instance_id} in region {self.ec2_region}")
+        self.logger.info(
+            f"Starting EC2 instance: {self.config['ec2_instance_id']} in region {self.config['ec2_region']}")
         current_state = self._get_instance_state()
         self.logger.info(f"Current instance state: {current_state}")
 
@@ -114,18 +113,18 @@ class VampNetLauncher:
 
         # Start the instance if it's stopped
         if current_state == "stopped":
-            self.ec2_client.start_instances(InstanceIds=[self.ec2_instance_id])
+            self.config['ec2_client'].start_instances(InstanceIds=[self.config['ec2_instance_id']])
             self.ec2_started = True
             self.logger.info("EC2 start command issued, waiting for instance to be ready...")
 
             # Wait for instance to be running
-            waiter = self.ec2_client.get_waiter('instance_running')
-            waiter.wait(InstanceIds=[self.ec2_instance_id])
+            waiter = self.config['ec2_client'].get_waiter('instance_running')
+            waiter.wait(InstanceIds=[self.config['ec2_instance_id']])
             self.logger.info("EC2 instance is now running")
 
             # Get the public IP/DNS if the server config uses a placeholder
             if self.config['server'].endswith('@ec2-instance'):
-                response = self.ec2_client.describe_instances(InstanceIds=[self.ec2_instance_id])
+                response = self.config['ec2_client'].describe_instances(InstanceIds=[self.config['ec2_instance_id']])
                 instance = response['Reservations'][0]['Instances'][0]
                 public_ip = instance.get('PublicIpAddress') or instance.get('PublicDnsName')
                 if public_ip:
@@ -139,15 +138,15 @@ class VampNetLauncher:
 
     def _stop_ec2_instance(self):
         """Stop the EC2 instance if we started it."""
-        if not self.ec2_instance_id or not self.ec2_started:
-            if not self.ec2_instance_id:
+        if not self.config['ec2_instance_id'] or not self.ec2_started:
+            if not self.config['ec2_instance_id']:
                 self.logger.info("No EC2 instance ID configured, skipping EC2 stop")
             else:
                 self.logger.info("EC2 instance was already running, not stopping it")
             return
 
-        self.logger.info(f"Stopping EC2 instance: {self.ec2_instance_id}")
-        self.ec2_client.stop_instances(InstanceIds=[self.ec2_instance_id])
+        self.logger.info(f"Stopping EC2 instance: {self.config['ec2_instance_id']}")
+        self.config['ec2_client'].stop_instances(InstanceIds=[self.config['ec2_instance_id']])
         self.logger.info("EC2 stop command issued")
 
     def _run_remote(self):
@@ -185,7 +184,7 @@ class VampNetLauncher:
             "-L", f"{port}:localhost:{port}",
             self.config['server'],
             f"bash -lc \"cd {remote_dir} && exec {remote_py} -u app.py "
-            f"--args.load conf/interface.yml --Interface.device cuda\""
+            f"--args.load conf/wham.yml --Interface.device cuda\""
         ]
         self.logger.info(f"SSH+remote cmd: {' '.join(cmd)}")
         self.ssh_proc = subprocess.Popen(

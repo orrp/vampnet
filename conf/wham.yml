@@ -1,0 +1,10 @@
+Interface.coarse_ckpt: ./models/wham/coarse.pth
+Interface.coarse2fine_ckpt: ./models/wham/c2f.pth
+Interface.codec_ckpt: ./models/wham/codec.pth
+Interface.coarse_chunk_size_s: 10
+Interface.coarse2fine_chunk_size_s: 3
+Interface.wavebeat_ckpt: ./models/wavebeat.pth
+
+# AudioLoader.sources:
+#   - /media/CHONK/null
+
