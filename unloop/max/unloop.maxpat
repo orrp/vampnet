@@ -4,13 +4,13 @@
 		"appversion" : 		{
 			"major" : 9,
 			"minor" : 0,
-			"revision" : 5,
+			"revision" : 1,
 			"architecture" : "x64",
 			"modernui" : 1
 		}
 ,
 		"classnamespace" : "box",
-		"rect" : [ 84.0, 131.0, 1000.0, 780.0 ],
+		"rect" : [ 34.0, 100.0, 1260.0, 983.0 ],
 		"gridsize" : [ 15.0, 15.0 ],
 		"boxes" : [ 			{
 				"box" : 				{
@@ -28,7 +28,7 @@
 					"numoutlets" : 2,
 					"offset" : [ 0.0, 0.0 ],
 					"outlettype" : [ "signal", "" ],
-					"patching_rect" : [ 100.0, 68.0, 307.0, 469.0 ],
+					"patching_rect" : [ 100.0, 71.0, 307.0, 469.0 ],
 					"viewvisibility" : 1
 				}
 
@@ -62,7 +62,7 @@
 
 			}
  ],
-		"originid" : "pat-142",
+		"originid" : "pat-6",
 		"parameters" : 		{
 			"obj-2::obj-1124" : [ "morph", "dry/wet", 0 ],
 			"obj-2::obj-1125" : [ "level[8]", "level", 0 ],
@@ -104,21 +104,21 @@
 ,
 		"dependency_cache" : [ 			{
 				"name" : "dry-wet.maxpat",
-				"bootpath" : "~/projects/research/unloop-2025/vampnet/unloop/max",
+				"bootpath" : "~/code/prs/vampnet/unloop/max",
 				"patcherrelativepath" : ".",
 				"type" : "JSON",
 				"implicit" : 1
 			}
 , 			{
 				"name" : "unloop-bpatcher.maxpat",
-				"bootpath" : "~/projects/research/unloop-2025/vampnet/unloop/max",
+				"bootpath" : "~/code/prs/vampnet/unloop/max",
 				"patcherrelativepath" : ".",
 				"type" : "JSON",
 				"implicit" : 1
 			}
 , 			{
 				"name" : "vampnet-ui.maxpat",
-				"bootpath" : "~/projects/research/unloop-2025/vampnet/unloop/max",
+				"bootpath" : "~/code/prs/vampnet/unloop/max",
 				"patcherrelativepath" : ".",
 				"type" : "JSON",
 				"implicit" : 1
