@@ -185,7 +185,7 @@ class VampNetLauncher:
             "-o", "StrictHostKeyChecking=no",
             "-L", f"{port}:localhost:{port}",
             self.config['server'],
-            f"bash -lc \"cd {remote_dir} || exit 1; exec {remote_py} -u app.py "
+            f"bash -lc \"cd {remote_dir} && exec {remote_py} -u app.py "
             f"--args.load conf/wham.yml --Interface.device cuda\""
         ]
         self.logger.info(f"SSH+remote cmd: {' '.join(cmd)}")
