@@ -1,0 +1,7 @@
+{
+  "python_path_server": "/home/ec2-user/anaconda3/envs/wam3/bin/python",
+  "server":        "g5-simple",
+  "vampnet_dir_server":  "/home/ec2-user/wam_new/wam/vampnet",
+  "port":        7860,
+  "maxpat":      "unloop/max/unloop.maxpat"
+}

@@ -1,7 +1,9 @@
 {
-  "server": "user@your-server",
-  "python_path_server": "/path/to/python",
-  "vampnet_dir_server": "/path/to/vampnet",
-  "port": 7860,
-  "maxpat": "unloop/max/unloop.maxpat"
+  "python_path_server": "/home/ec2-user/vampnet/.venv/bin/python",
+  "server":        "g4",
+  "vampnet_dir_server":  "/home/ec2-user/vampnet",
+  "port":        7860,
+  "maxpat":      "unloop/max/unloop.maxpat",
+  "ec2_instance_id": "i-01958b3bb1bcdaa8d",
+  "ec2_region": "us-east-1"
 }
