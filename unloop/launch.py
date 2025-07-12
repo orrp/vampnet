@@ -29,13 +29,14 @@ def setup_logger():
 
 
 class VampNetLauncher:
-    def __init__(self, config_path: Path, hold: bool = False):
+    def __init__(self, config_path: Path, hold: bool = False, no_max: bool = False):
         self.logger = setup_logger()
         self.config = self._load_config(config_path)
         self.ssh_proc = None
         self.client_proc = None
         self.max_proc = None
         self.hold = hold
+        self.no_max = no_max
         self.ec2_started = False
 
         for sig in (signal.SIGINT, signal.SIGTERM):
@@ -186,7 +187,7 @@ class VampNetLauncher:
             "-L", f"{port}:localhost:{port}",
             self.config['server'],
             f"bash -lc \"cd {remote_dir} && exec {remote_py} -u app.py "
-            f"--args.load conf/wham.yml --Interface.device cuda\""
+            f"--args.load conf/conversational.yml --Interface.device cuda\""
         ]
         self.logger.info(f"SSH+remote cmd: {' '.join(cmd)}")
         self.ssh_proc = subprocess.Popen(
@@ -268,7 +269,7 @@ class VampNetLauncher:
 
         # Preflight checks
         missing = []
-        if not patch.exists():   missing.append(f"Max patch not found: {patch}")
+        if not self.no_max and not patch.exists():   missing.append(f"Max patch not found: {patch}")
         if not client.exists():  missing.append(f"Client script not found: {client}")
         if missing:
             for m in missing:
@@ -303,30 +304,48 @@ class VampNetLauncher:
                 daemon=True
             ).start()
 
-            # 3) Open Max and wait for it to exit
-            self.logger.info(f"Opening Max patch and waiting: {patch}")
-            self.max_proc = subprocess.Popen(
-                ["open", "-n", "-W", "-a", "Max", str(patch)],
-                stdout=subprocess.PIPE, stderr=subprocess.PIPE
-            )
-            threading.Thread(
-                target=self._stream_pipe,
-                args=(self.max_proc.stdout, "[Max]", self.logger.info),
-                daemon=True
-            ).start()
-            threading.Thread(
-                target=self._stream_pipe,
-                args=(self.max_proc.stderr, "[Max][ERR]", self.logger.info),
-                daemon=True
-            ).start()
+            # 3) Print big READY message
+            self.logger.info("=" * 70)
+            self.logger.info("")
+            self.logger.info("                           R E A D Y")
+            self.logger.info("")
+            self.logger.info(f"    VampNet server:  http://127.0.0.1:{port}/")
+            self.logger.info(f"    Client running:  {client_cmd[0]}")
+            self.logger.info("    Press Ctrl+C to stop all processes and clean up")
+            self.logger.info("")
+            self.logger.info("=" * 70)
+            
+            if not self.no_max:
+                # Open Max and wait for it to exit
+                self.logger.info(f"Opening Max patch: {patch}")
+                self.max_proc = subprocess.Popen(
+                    ["open", "-n", "-W", "-a", "Max", str(patch)],
+                    stdout=subprocess.PIPE, stderr=subprocess.PIPE
+                )
+                threading.Thread(
+                    target=self._stream_pipe,
+                    args=(self.max_proc.stdout, "[Max]", self.logger.info),
+                    daemon=True
+                ).start()
+                threading.Thread(
+                    target=self._stream_pipe,
+                    args=(self.max_proc.stderr, "[Max][ERR]", self.logger.info),
+                    daemon=True
+                ).start()
 
-            self.max_proc.wait()
+                self.max_proc.wait()
 
-            # 4) After Max exits, keep the launcher alive until it's killed
-            if self.hold:
-                # prevent SIGCHLD (child exit) from waking us up
+                # After Max exits, keep the launcher alive until it's killed if hold is set
+                if self.hold:
+                    # prevent SIGCHLD (child exit) from waking us up
+                    signal.signal(signal.SIGCHLD, signal.SIG_IGN)
+                    self.logger.info("Max exited; awaiting SIGINT/SIGTERM to clean up.")
+                    while True:
+                        signal.pause()
+            else:
+                # No Max patch - keep running until killed
                 signal.signal(signal.SIGCHLD, signal.SIG_IGN)
-                self.logger.info("Max exited; awaiting SIGINT/SIGTERM to clean up.")
+                self.logger.info("Running without Max. Press Ctrl+C to stop.")
                 while True:
                     signal.pause()
 
@@ -345,8 +364,12 @@ def main():
         '--hold', action='store_true',
         help='Delay cleanup until this script is killed, even after Max exits.'
     )
+    parser.add_argument(
+        '--no-max', action='store_true',
+        help='Do not open Max patch, just run server and client.'
+    )
     args = parser.parse_args()
-    VampNetLauncher(Path(args.config), hold=args.hold).run()
+    VampNetLauncher(Path(args.config), hold=args.hold, no_max=args.no_max).run()
 
 
 if __name__ == '__main__':
