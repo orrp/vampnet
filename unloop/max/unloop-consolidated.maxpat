@@ -206,7 +206,7 @@
 
 							}
  ],
-						"originid" : "pat-12"
+						"originid" : "pat-174"
 					}
 ,
 					"patching_rect" : [ 512.0, 205.0, 71.0, 22.0 ],
@@ -557,7 +557,7 @@
 
 							}
  ],
-						"originid" : "pat-14"
+						"originid" : "pat-176"
 					}
 ,
 					"patching_rect" : [ 527.200007855892181, 140.800002098083496, 93.333336114883423, 22.0 ],
@@ -1572,7 +1572,7 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
 					"patching_rect" : [ 5449.000162392854691, 3381.000100761651993, 72.0, 26.0 ],
-					"text" : "/Users/orrp/code/prs/vampnet/unloop/.gradio/c1ccd911076afa8048fb08e80bdee2fa63ccc5dfce2657c3de1a40600d4cd4b4/audio.wav"
+					"text" : "/Users/orrp/code/prs/vampnet/unloop/.gradio/224bdd391d792228655b543f5c7b69f790eb1f237d89a27454acde2600679115/audio.wav"
 				}
 
 			}
@@ -1586,7 +1586,7 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
 					"patching_rect" : [ 5373.000160127878189, 3381.000100761651993, 71.0, 26.0 ],
-					"text" : "/Users/orrp/code/prs/vampnet/unloop/.gradio/5e7f6dd8319adc49e2f6a8e60caf3acfd55f7ba27fcb881f1439dd57f21e0074/audio.wav"
+					"text" : "/Users/orrp/code/prs/vampnet/unloop/.gradio/2f076680f31b2ca58c03d832a4d3322d702efc8b7242e73a790b11c983072ef1/audio.wav"
 				}
 
 			}
@@ -1677,7 +1677,7 @@
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
 									"patching_rect" : [ 50.0, 145.945942878723145, 38.0, 35.0 ],
-									"text" : "2954.583333"
+									"text" : "1834.583333"
 								}
 
 							}
@@ -1739,7 +1739,7 @@
 
 							}
  ],
-						"originid" : "pat-16"
+						"originid" : "pat-178"
 					}
 ,
 					"patching_rect" : [ 5164.5, 2058.78364634513855, 179.0, 22.0 ],
@@ -1859,7 +1859,7 @@
 
 							}
  ],
-						"originid" : "pat-18"
+						"originid" : "pat-180"
 					}
 ,
 					"patching_rect" : [ 5516.000082194805145, 3072.000045776367188, 93.0, 22.0 ],
@@ -2424,7 +2424,7 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
 					"patching_rect" : [ 4323.305485367774963, 924.5, 50.0, 35.0 ],
-					"text" : "2954.583333"
+					"text" : "1834.583333"
 				}
 
 			}
@@ -2519,7 +2519,7 @@
 
 							}
  ],
-						"originid" : "pat-22"
+						"originid" : "pat-184"
 					}
 ,
 					"patching_rect" : [ 3880.0, 1960.0, 97.0, 22.0 ],
@@ -3375,7 +3375,7 @@
 
 							}
  ],
-						"originid" : "pat-24"
+						"originid" : "pat-186"
 					}
 ,
 					"patching_rect" : [ 5088.0, 2521.5, 89.0, 22.0 ],
@@ -3558,7 +3558,7 @@
 
 							}
  ],
-						"originid" : "pat-26"
+						"originid" : "pat-188"
 					}
 ,
 					"patching_rect" : [ 5404.0, 2485.5, 117.0, 22.0 ],
@@ -3860,7 +3860,7 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
 					"patching_rect" : [ 3148.843128204345703, 936.249996900558472, 50.0, 35.0 ],
-					"text" : "2954.583333"
+					"text" : "1834.583333"
 				}
 
 			}
@@ -4563,7 +4563,7 @@
 
 							}
  ],
-						"originid" : "pat-28"
+						"originid" : "pat-190"
 					}
 ,
 					"patching_rect" : [ 5380.0, 512.5, 153.0, 22.0 ],
@@ -6134,7 +6134,7 @@
 
 							}
  ],
-						"originid" : "pat-30"
+						"originid" : "pat-192"
 					}
 ,
 					"patching_rect" : [ 5480.0, 3338.00009948015213, 325.0, 22.0 ],
@@ -6395,7 +6395,7 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
 					"patching_rect" : [ 4916.0, 3037.5, 215.0, 76.0 ],
-					"text" : "/process 28545 vampnet /Users/orrp/code/prs/vampnet/unloop/max/audio/#01in.wav default 3 0. 22903 2954.583333 0 0.15 64 4 0 32 1. 0. 0. 1"
+					"text" : "/process 25471 vampnet /Users/orrp/code/prs/vampnet/unloop/max/audio/#01in.wav default 128 0. 29430 1834.583333 0 0.15 64 4 4 20 1.004 0. 0. 1"
 				}
 
 			}
@@ -6601,7 +6601,7 @@
 
 							}
  ],
-						"originid" : "pat-32"
+						"originid" : "pat-194"
 					}
 ,
 					"patching_rect" : [ 1141.92646598815918, 1080.0, 63.53012353181839, 22.0 ],
@@ -7649,7 +7649,7 @@
 
 							}
  ],
-						"originid" : "pat-34"
+						"originid" : "pat-196"
 					}
 ,
 					"patching_rect" : [ 408.0, 4368.0, 46.0, 22.0 ],
@@ -8418,7 +8418,7 @@
 
 							}
  ],
-						"originid" : "pat-36"
+						"originid" : "pat-198"
 					}
 ,
 					"patching_rect" : [ 382.0, 4010.0, 31.0, 22.0 ],
@@ -8795,7 +8795,7 @@
 
 							}
  ],
-						"originid" : "pat-38"
+						"originid" : "pat-200"
 					}
 ,
 					"patching_rect" : [ 339.0, 4076.0, 35.0, 22.0 ],
@@ -10154,7 +10154,7 @@
 
 							}
  ],
-						"originid" : "pat-40"
+						"originid" : "pat-202"
 					}
 ,
 					"patching_rect" : [ 774.5, 2708.000033676624298, 63.0, 22.0 ],
@@ -10503,7 +10503,7 @@
 
 							}
  ],
-						"originid" : "pat-42"
+						"originid" : "pat-204"
 					}
 ,
 					"patching_rect" : [ 674.5, 2772.000033676624298, 55.0, 22.0 ],
@@ -11133,6 +11133,30 @@
 						"gridsize" : [ 15.0, 15.0 ],
 						"boxes" : [ 							{
 								"box" : 								{
+									"id" : "obj-47",
+									"linecount" : 3,
+									"maxclass" : "comment",
+									"numinlets" : 1,
+									"numoutlets" : 0,
+									"patching_rect" : [ 408.0, 326.465681314468384, 150.0, 47.0 ],
+									"text" : "Will use most recent value: from signal (knob) or from dial (GUI)"
+								}
+
+							}
+, 							{
+								"box" : 								{
+									"id" : "obj-36",
+									"maxclass" : "newobj",
+									"numinlets" : 1,
+									"numoutlets" : 1,
+									"outlettype" : [ "" ],
+									"patching_rect" : [ 364.0, 437.0, 72.0, 22.0 ],
+									"text" : "prepend set"
+								}
+
+							}
+, 							{
+								"box" : 								{
 									"id" : "obj-31",
 									"maxclass" : "newobj",
 									"numinlets" : 0,
@@ -11174,7 +11198,7 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 397.0, 350.0, 85.0, 22.0 ],
+									"patching_rect" : [ 321.0, 331.465681314468384, 85.0, 22.0 ],
 									"text" : "r lpd8-periodic"
 								}
 
@@ -11683,7 +11707,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 377.0, 415.740486621856689, 70.0, 22.0 ],
+									"patching_rect" : [ 382.0, 376.335903882980347, 70.0, 22.0 ],
 									"text" : "loadmess 3"
 								}
 
@@ -11803,7 +11827,7 @@
 									"numoutlets" : 2,
 									"outlettype" : [ "", "float" ],
 									"parameter_enable" : 1,
-									"patching_rect" : [ 377.0, 462.465681314468384, 55.0, 36.0 ],
+									"patching_rect" : [ 321.0, 450.0, 55.0, 36.0 ],
 									"presentation" : 1,
 									"presentation_rect" : [ 61.770833075046539, 8.729166448116302, 39.0, 36.0 ],
 									"saved_attribute_attributes" : 									{
@@ -12178,7 +12202,16 @@
 							}
 , 							{
 								"patchline" : 								{
-									"destination" : [ "obj-347", 0 ],
+									"destination" : [ "obj-168", 4 ],
+									"order" : 1,
+									"source" : [ "obj-18", 0 ]
+								}
+
+							}
+, 							{
+								"patchline" : 								{
+									"destination" : [ "obj-36", 0 ],
+									"order" : 0,
 									"source" : [ "obj-18", 0 ]
 								}
 
@@ -12419,6 +12452,13 @@
 							}
 , 							{
 								"patchline" : 								{
+									"destination" : [ "obj-347", 0 ],
+									"source" : [ "obj-36", 0 ]
+								}
+
+							}
+, 							{
+								"patchline" : 								{
 									"destination" : [ "obj-2", 0 ],
 									"source" : [ "obj-362", 0 ]
 								}
@@ -12516,7 +12556,7 @@
 
 							}
  ],
-						"originid" : "pat-44"
+						"originid" : "pat-207"
 					}
 ,
 					"patching_rect" : [ 5408.0, 2666.0, 286.0, 163.0 ],
@@ -16307,7 +16347,7 @@
 
 			}
  ],
-		"originid" : "pat-10",
+		"originid" : "pat-170",
 		"parameters" : 		{
 			"obj-1124" : [ "morph", "dry/wet", 0 ],
 			"obj-1125" : [ "level[8]", "level", 0 ],
