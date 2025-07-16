@@ -250,4 +250,3 @@ if __name__ == "__main__":
     except Exception as e:
         import shutil
         shutil.rmtree(DOWNLOADS_DIR, ignore_errors=True)
-        raise e
