@@ -10,9 +10,22 @@
 		}
 ,
 		"classnamespace" : "box",
-		"rect" : [ 34.0, 100.0, 1260.0, 983.0 ],
+		"rect" : [ 34.0, 87.0, 1260.0, 959.0 ],
 		"gridsize" : [ 15.0, 15.0 ],
 		"boxes" : [ 			{
+				"box" : 				{
+					"id" : "obj-105",
+					"maxclass" : "newobj",
+					"numinlets" : 0,
+					"numoutlets" : 0,
+					"patching_rect" : [ 238.0, 594.0, 100.0, 22.0 ],
+					"presentation" : 1,
+					"presentation_rect" : [ 589.0, 406.611547708511353, 71.0, 22.0 ],
+					"text" : "lpd8-control"
+				}
+
+			}
+, 			{
 				"box" : 				{
 					"bgmode" : 0,
 					"border" : 0,
@@ -104,6 +117,13 @@
 ,
 		"dependency_cache" : [ 			{
 				"name" : "dry-wet.maxpat",
+				"bootpath" : "~/code/prs/vampnet/unloop/max",
+				"patcherrelativepath" : ".",
+				"type" : "JSON",
+				"implicit" : 1
+			}
+, 			{
+				"name" : "lpd8-control.maxpat",
 				"bootpath" : "~/code/prs/vampnet/unloop/max",
 				"patcherrelativepath" : ".",
 				"type" : "JSON",

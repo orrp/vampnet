@@ -187,7 +187,7 @@ class VampNetLauncher:
             "-L", f"{port}:localhost:{port}",
             self.config['server'],
             f"bash -lc \"cd {remote_dir} && exec {remote_py} -u app.py "
-            f"--args.load conf/conversational.yml --Interface.device cuda\""
+            f"--args.load conf/birth.yml --Interface.device cuda\""
         ]
         self.logger.info(f"SSH+remote cmd: {' '.join(cmd)}")
         self.ssh_proc = subprocess.Popen(
