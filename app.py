@@ -603,7 +603,8 @@ with gr.Blocks() as demo:
 
             model_choice = gr.Dropdown(
                 label="model choice",
-                choices=list(interface.available_models()),
+                choices=["default"],
+                # choices=list(interface.available_models()), # orrp: caused error when offline
                 value=init_model_choice,
                 visible=True
             )
